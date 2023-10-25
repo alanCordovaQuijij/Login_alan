@@ -35,8 +35,10 @@ export const Favoritos = ({navigation, route}:Props) => {
 
 
     const handleEliminarFavorito = async (id: number) => {
+        
         const nuevosFavoritos = favoritos.filter(item => item.id !== id);
         setFavoritos(nuevosFavoritos);
+        mmkv.removeItem('Favoritos');
         await mmkv.setMapAsync('Favoritos', nuevosFavoritos);
       };
 
