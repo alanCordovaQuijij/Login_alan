@@ -1,11 +1,15 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import React, { useState } from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { MMKV } from 'react-native-mmkv';
-
+import MMKVStorage, { MMKVInstance, MMKVLoader } from 'react-native-mmkv-storage';
 interface Props extends StackScreenProps<any,any>{};
 
-export const mmkv = new MMKV();
+
+interface Immkv{
+    MMKV: MMKVInstance;
+}
+
+export const mmkv = new MMKVLoader().initialize()
 
 
 export const Login = ({navigation}:Props) => {
@@ -18,7 +22,7 @@ export const Login = ({navigation}:Props) => {
     const handleLogin = () =>{
 
         if(usuario == 'admin' && password == 'admin') {
-            mmkv.set('token', 'Bearer')
+            mmkv.setString('Token', 'Bearer')
         }
 
         navigation.navigate('Posts')

@@ -2,6 +2,7 @@ import { StackScreenProps } from '@react-navigation/stack'
 import React, { useEffect, useState } from 'react'
 import { FlatList, Text, TouchableOpacity, View } from 'react-native'
 import { DatosListado } from './Api/Interfaces/reqRespDatos';
+import { mmkv } from './Login';
 
 interface Props extends StackScreenProps<any, any>{}
 
@@ -17,46 +18,36 @@ export const Favoritos = ({navigation, route}:Props) => {
     
     
 
+    const [favoritos, setFavoritos] = useState<DatosListado[]>([]);
+
     useEffect(() => {
-  
-        console.log('DATOS FAVORITOS:',route.params)
-        setFavoritosListado(params.favoritos)
-        console.log('DATOS FAVORITOS:',favoritosListado)
-        
-
-    }, [params.favoritos])
-
-    const eliminarFavoritos = (id: number) => {
-
-
-        console.log('ID ELIMINAR',id)
-        setFavoritosListado((prevListado) => prevListado.filter((_,i) => i !== id));
-
-
-
-        console.log('LISTA NUEVA:', favoritosListado)
-    }
-
-    const eliminarFavoritos2 = (id: number) => {
-        setFavoritosListado((prevListado) => {
-          const indiceAEliminar = prevListado.findIndex((item) => item.id === id);
-      
-          if (indiceAEliminar !== -1) {
-            const nuevoListado = prevListado.filter((_, i) => i !== indiceAEliminar);
-            return nuevoListado;
-          } else {
-            console.error('Elemento no encontrado para eliminar con el id:', id);
-            return prevListado;
-          }
-        });
+      const fetchFavoritos = async () => {
+        try {
+          const favoritosFromStorage = await mmkv.getMapAsync('Favoritos');
+          setFavoritos(favoritosFromStorage as DatosListado[]);
+        } catch (error) {
+          console.error('Error fetching favoritos:', error);
+        }
       };
+  
+      fetchFavoritos();
+    }, []);
+
+
+    const handleEliminarFavorito = async (id: number) => {
+        const nuevosFavoritos = favoritos.filter(item => item.id !== id);
+        setFavoritos(nuevosFavoritos);
+        await mmkv.setMapAsync('Favoritos', nuevosFavoritos);
+      };
+
+
     
     
   return (
     <View style={{backgroundColor:'gray', height:'100%'}}>
         <FlatList
         
-        data={favoritosListado}
+        data={favoritos}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({item}) => (
     
@@ -68,7 +59,7 @@ export const Favoritos = ({navigation, route}:Props) => {
                 <View style={{backgroundColor:'green', marginHorizontal:20 }}>
                     <TouchableOpacity 
                     style={{ backgroundColor: '#147EFB', padding: 15, borderRadius: 15 }}
-                    onPress={() => eliminarFavoritos2(item.id)}
+                    onPress={() => handleEliminarFavorito(item.id)}
                      >
                         <Text>Eliminar</Text>
                     </TouchableOpacity>
