@@ -15,9 +15,6 @@ export const Favoritos = ({navigation, route}:Props) => {
     const params = route.params as favoritos;
     const [favoritosListado, setFavoritosListado] = useState<DatosListado[]>([]);
 
-    
-    
-
     const [favoritos, setFavoritos] = useState<DatosListado[]>([]);
 
     useEffect(() => {
@@ -37,14 +34,13 @@ export const Favoritos = ({navigation, route}:Props) => {
     const handleEliminarFavorito = async (id: number) => {
         
         const nuevosFavoritos = favoritos.filter(item => item.id !== id);
-        setFavoritos(nuevosFavoritos);
+        
         mmkv.removeItem('Favoritos');
         await mmkv.setMapAsync('Favoritos', nuevosFavoritos);
+        setFavoritos(nuevosFavoritos);
       };
 
-
-    
-    
+  
   return (
     <View style={{backgroundColor:'gray', height:'100%'}}>
         <FlatList
@@ -78,7 +74,6 @@ export const Favoritos = ({navigation, route}:Props) => {
                         <Text>Atrás</Text>
                     </TouchableOpacity>
                 </View>
-
     </View>
   )
 }
