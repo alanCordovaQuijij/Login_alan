@@ -3,17 +3,17 @@ import React from 'react'
 import { Login } from '../Login';
 import { Post } from '../Post';
 import { Favoritos } from '../Favoritos';
+import BottomTab from './BottomTab';
 
 
 const stack = createStackNavigator();
 
 export const StackNavigator = () => {
   return (
-    <stack.Navigator initialRouteName='Login'>
+    <stack.Navigator initialRouteName='Login' screenOptions={{headerShown:false}}>
         <stack.Screen name='Login' component={Login}/>
-        <stack.Screen name='Posts' component={Post}/>
-        <stack.Screen name='FavoritosScreen' component={Favoritos}/>
-
+        <stack.Screen name='Tabs' component={BottomTab}/>
+        
     </stack.Navigator>
   )
 }

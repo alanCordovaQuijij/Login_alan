@@ -1,7 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Button,
   FlatList,
+  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -11,6 +13,8 @@ import {reqPost} from './Api/reqPost';
 import {DatosListado} from './Api/Interfaces/reqRespDatos';
 import {StackScreenProps} from '@react-navigation/stack';
 import {mmkv} from './Login';
+import { useIsFocused } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Props extends StackScreenProps<any, any> {}
 
@@ -18,6 +22,8 @@ export const Post = ({navigation}: Props) => {
   const [datos, setDatos] = useState<DatosListado[]>([]);
   const [favoritos, setFavoritos] = useState<DatosListado[]>([]);
 
+  const isFocused = useIsFocused();
+  const [isLoading, setisLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -25,6 +31,10 @@ export const Post = ({navigation}: Props) => {
         mmkv.setMapAsync('Datos', response.data);
         const datosFromStorage = await mmkv.getMapAsync('Datos');
         setDatos(datosFromStorage as DatosListado[]);
+
+        await mmkv.setMapAsync('Favoritos', favoritos)
+        setisLoading(false);
+        
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -34,29 +44,30 @@ export const Post = ({navigation}: Props) => {
   }, []);
 
   useEffect(() => {
-    
-    //console.log('DATOS 3', datos);
-  }, [datos]);
+    console.log("Favoritos en el POST:", JSON.stringify(favoritos))
+  }, [favoritos]);
 
-  const handleAddFavorito = async (id: number) => {
+  useEffect(() => {
+    ActualizarFavoritos();
+  }, [isFocused]);
+
+  const ActualizarFavoritos = async () => {
+    const favoritosFromStorage = await mmkv.getMapAsync('Favoritos');
+    setFavoritos(favoritosFromStorage as unknown as any);
+  }
+
+  const handleAddFavorito = async (item: DatosListado) => {
+
+    const isFavorite = favoritos.some(favorite => favorite.id === item.id);
     try {
-      // Obtener la lista de favoritos del almacenamiento
-      const favoritosFromStorage = await mmkv.getMapAsync('Favoritos');
-      
-      // Comprobar si la lista es válida (no null ni undefined)
-      if (favoritosFromStorage && Array.isArray(favoritosFromStorage)) {
-        const favorito = datos.find(item => item.id === id);
-  
-        // Verificar si el favorito ya está en la lista
-        if (favorito && !favoritosFromStorage.some(fav => fav.id === favorito.id)) {
-          // Actualizar la lista de favoritos inmediatamente
-          //setFavoritos(prevFavoritos => [...prevFavoritos, favorito]);
-  
-          // Guardar la nueva lista de favoritos en el almacenamiento
-          await mmkv.setMapAsync('Favoritos', [...favoritosFromStorage, favorito]);
-        }
+      if(!isFavorite){
+
+        setFavoritos([...favoritos, item])
+        await mmkv.setMapAsync('Favoritos', [...favoritos, item]);
+     
       } else {
-        console.error('Error al obtener la lista de favoritos del almacenamiento.');
+        await mmkv.setMapAsync('Favoritos', favoritos)
+        
       }
     } catch (error) {
       console.error('Error al manejar la adición de favoritos:', error);
@@ -71,47 +82,59 @@ export const Post = ({navigation}: Props) => {
 
   return (
     <>
-      <View style={{backgroundColor: 'gray'}}>
+      <SafeAreaView style={{ justifyContent:'center', alignItems:'center'}}>
+      <Image className="h-full w-full absolute" source={{uri:'https://cdn.pixabay.com/photo/2017/01/24/03/54/plants-2004492_1280.jpg'}} />
+        {isLoading ? <ActivityIndicator/> : (
         <FlatList
           data={datos}
           keyExtractor={item => item.id.toString()}
+          
           renderItem={({item}) => (
-            <View
+            <><View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                width: '100%',
+                justifyContent: 'center',
+                width: '95%',
                 margin: 10,
-                backgroundColor: 'yellow',
+                backgroundColor: 'white',
+                borderRadius: 10,
+                elevation: 10,
+                paddingHorizontal: 10,
+                alignSelf:'center'
+                
               }}>
-              <View style={{width: '60%', backgroundColor: 'red'}}>
-                <Text key={item.id}>{item.title}</Text>
+
+              <View style={{ width: '50%', }}>
+                <Text key={item.id} className='text-black'>{item.title}</Text>
               </View>
 
-              <View style={{backgroundColor: 'green'}}>
+              <View style={{ width: '50%', }}>
                 <TouchableOpacity
                   style={{
                     backgroundColor: '#147EFB',
                     padding: 15,
                     borderRadius: 15,
+                    margin: 10
                   }}
-                  onPress={() => handleAddFavorito(item.id)}>
+                  onPress={() => handleAddFavorito(item)}>
                   <Text>Añadir a favoritos</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </View></>
           )}
-        />
+          initialNumToRender={20} // Ajusta según tus necesidades
+          windowSize={15} // Ajusta según tus necesidades
+        />)}
 
-        <View style={{position: 'absolute', bottom: 20, alignSelf: 'center'}}>
+        {/* <View style={{position: 'absolute', bottom: 20, alignSelf: 'center'}}>
           <TouchableOpacity
             style={{backgroundColor: 'purple', padding: 15, borderRadius: 15}}
             onPress={navegarFavoritos}>
             <Text>Ir a favoritos</Text>
           </TouchableOpacity>
-        </View>
-      </View>
+        </View> */}
+      </SafeAreaView>
     </>
   );
 };

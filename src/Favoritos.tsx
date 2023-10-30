@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { FlatList, Text, TouchableOpacity, View } from 'react-native'
 import { DatosListado } from './Api/Interfaces/reqRespDatos';
 import { mmkv } from './Login';
+import { useIsFocused } from '@react-navigation/native';
 
 interface Props extends StackScreenProps<any, any>{}
 
@@ -11,24 +12,31 @@ interface favoritos{
 }
 
 
+
 export const Favoritos = ({navigation, route}:Props) => {
     const params = route.params as favoritos;
     const [favoritosListado, setFavoritosListado] = useState<DatosListado[]>([]);
 
     const [favoritos, setFavoritos] = useState<DatosListado[]>([]);
+    const isFocused = useIsFocused();
+
+
+    const fetchFavoritos = async () => {
+      try {
+        const favoritosFromStorage = await mmkv.getMapAsync('Favoritos');
+        console.log(
+          'El listado en la funcion listar FAVORITOS:',
+          JSON.stringify(favoritosFromStorage),
+        );
+        setFavoritos(favoritosFromStorage as DatosListado[]);
+      } catch (error) {
+        console.error('Error fetching favoritos:', error);
+      }
+    };
 
     useEffect(() => {
-      const fetchFavoritos = async () => {
-        try {
-          const favoritosFromStorage = await mmkv.getMapAsync('Favoritos');
-          setFavoritos(favoritosFromStorage as DatosListado[]);
-        } catch (error) {
-          console.error('Error fetching favoritos:', error);
-        }
-      };
-  
       fetchFavoritos();
-    }, []);
+    }, [isFocused]);
 
 
     const handleEliminarFavorito = async (id: number) => {
@@ -69,11 +77,11 @@ export const Favoritos = ({navigation, route}:Props) => {
         
         />
 
-                <View style={{position:'absolute', bottom:20, alignSelf:'center' }}>
+                {/* <View style={{position:'absolute', bottom:20, alignSelf:'center' }}>
                     <TouchableOpacity style={{ backgroundColor: 'purple', padding: 15, borderRadius: 15 }} onPress={()=>navigation.navigate('Posts')} >
                         <Text>Atrás</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
     </View>
   )
 }
