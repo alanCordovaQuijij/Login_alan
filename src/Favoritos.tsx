@@ -1,9 +1,11 @@
 import { StackScreenProps } from '@react-navigation/stack'
-import React, { useEffect, useState } from 'react'
-import { FlatList, Text, TouchableOpacity, View } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
+import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native'
 import { DatosListado } from './Api/Interfaces/reqRespDatos';
 import { mmkv } from './Login';
 import { useIsFocused } from '@react-navigation/native';
+import { modalContext } from './context/modalContext';
+import ConfirmModal from './components/ConfirmModal';
 
 interface Props extends StackScreenProps<any, any>{}
 
@@ -19,6 +21,9 @@ export const Favoritos = ({navigation, route}:Props) => {
 
     const [favoritos, setFavoritos] = useState<DatosListado[]>([]);
     const isFocused = useIsFocused();
+
+    const {open, setOpen} = useContext(modalContext);
+
 
 
     const fetchFavoritos = async () => {
@@ -39,33 +44,73 @@ export const Favoritos = ({navigation, route}:Props) => {
     }, [isFocused]);
 
 
-    const handleEliminarFavorito = async (id: number) => {
+      const handleEliminarFavorito = async (id: number) => {
         
         const nuevosFavoritos = favoritos.filter(item => item.id !== id);
-        
         mmkv.removeItem('Favoritos');
         await mmkv.setMapAsync('Favoritos', nuevosFavoritos);
         setFavoritos(nuevosFavoritos);
       };
 
+//////////////////////CONFIRMACION MODAL //////////////////////
+  const [modalVisible, setModalVisible] = useState(false);
+  const [favoritoAEliminar, setFavoritoAEliminar] = useState<number | null>(null);
+
+  const toggleModal = (id: number) => {
+    setFavoritoAEliminar(id);
+    setModalVisible(!modalVisible);
+  };
+
+  const handleConfirmEliminarFavorito = async () => {
+    if (favoritoAEliminar !== null) {
+      await handleEliminarFavorito(favoritoAEliminar);
+      setModalVisible(false);
+    }
+  };
+
+  const handleCancelarEliminarFavorito = () => {
+    setFavoritoAEliminar(null);
+    setModalVisible(false);
+  };
+
+////////////////////////////////////////////////////////////////////
   
   return (
     <View style={{backgroundColor:'gray', height:'100%'}}>
+      <Image
+          className="h-full w-full absolute"
+          source={{
+            uri: 'https://cdn.pixabay.com/photo/2016/02/13/14/03/roof-1197886_1280.jpg',
+          }}
+        />
         <FlatList
         
         data={favoritos}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({item}) => (
     
-            <View style={{flexDirection:'row',alignItems:'center', justifyContent:'space-between', width:'100%', margin:10, backgroundColor:'yellow'}}>
-                <View style={{width:'60%', backgroundColor:'red'}}>
+            <View 
+            style={{
+                flexDirection:'row',
+                alignItems:'center', 
+                justifyContent:'space-between', 
+                width:'95%', 
+                margin:10, 
+                backgroundColor: 'white',
+                borderRadius: 10,
+                elevation: 10,
+                paddingHorizontal: 10,
+                alignSelf: 'center',
+                }}>
+
+                <View style={{width:'60%'}}>
                     <Text  key={item.id}>{item.title}</Text>
                 </View>
 
-                <View style={{backgroundColor:'green', marginHorizontal:20 }}>
+                <View style={{ marginHorizontal:20 }}>
                     <TouchableOpacity 
                     style={{ backgroundColor: '#147EFB', padding: 15, borderRadius: 15 }}
-                    onPress={() => handleEliminarFavorito(item.id)}
+                    onPress={() => toggleModal(item.id)}
                      >
                         <Text>Eliminar</Text>
                     </TouchableOpacity>
@@ -76,6 +121,9 @@ export const Favoritos = ({navigation, route}:Props) => {
         )}
         
         />
+
+        <ConfirmModal visible={modalVisible} onConfirm={handleConfirmEliminarFavorito} onCancel={handleCancelarEliminarFavorito} />
+
 
                 {/* <View style={{position:'absolute', bottom:20, alignSelf:'center' }}>
                     <TouchableOpacity style={{ backgroundColor: 'purple', padding: 15, borderRadius: 15 }} onPress={()=>navigation.navigate('Posts')} >
