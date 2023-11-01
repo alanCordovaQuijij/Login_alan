@@ -104,7 +104,7 @@ export const Favoritos = ({navigation, route}:Props) => {
                 }}>
 
                 <View style={{width:'60%'}}>
-                    <Text  key={item.id}>{item.title}</Text>
+                    <Text className="text-black"  key={item.id}>{item.title}</Text>
                 </View>
 
                 <View style={{ marginHorizontal:20 }}>
