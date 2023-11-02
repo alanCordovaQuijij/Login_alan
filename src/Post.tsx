@@ -73,7 +73,7 @@ export const Post = ({navigation}: Props) => {
       
     });
   }
-
+///IONIC////
   const handleAddFavorito = async (item: DatosListado) => {
     const isFavorite = favoritos.some(favorite => favorite.id === item.id);
 
