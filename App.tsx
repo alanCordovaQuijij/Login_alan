@@ -6,6 +6,7 @@ import { View } from 'react-native-reanimated/lib/typescript/Animated';
 import ModalError from './src/components/ModalError';
 import { ModalProvider } from './src/context/modalContext';
 import Toast from 'react-native-toast-message';
+import { toastConfig } from './src/components/Toast';
 
 
  const App = () => {
@@ -15,7 +16,7 @@ import Toast from 'react-native-toast-message';
       <NavigationContainer>
         <StackNavigator/>
       </NavigationContainer> 
-      <Toast />
+      <Toast config={toastConfig}/>
     </ModalProvider> )
 }
 

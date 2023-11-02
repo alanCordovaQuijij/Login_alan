@@ -60,11 +60,17 @@ export const Post = ({navigation}: Props) => {
     setFavoritos(favoritosFromStorage as unknown as any);
   };
 
-  const showToast = () => {
+  const showToast = (type: string, text1: string) => {
     Toast.show({
-      type: 'error',
-      text1: '¡ Este item ya está añadido a favoritos !',
+
+      // type:'tomatoToast',
+      // props: { uuid: 'bba1a7d0-6ab2-4a0a-a76e-ebbe05ae6d70' }
+
+       type: type,
+       text1: text1,
+       visibilityTime:2000,
       //text2: 'This is some something 👋'
+      
     });
   }
 
@@ -76,8 +82,9 @@ export const Post = ({navigation}: Props) => {
       if (!isFavorite) {
         setFavoritos([...favoritos, item]);
         await mmkv.setMapAsync('Favoritos', [...favoritos, item]);
+        showToast('success', '¡ Item añadido con exito !');
       } else {
-        showToast();
+        showToast('error', '¡ Este item ya está añadido a favoritos !');
         //setOpen(true)
         await mmkv.setMapAsync('Favoritos', favoritos);
         // Alert.alert("","Este item ya existe...")
@@ -98,6 +105,7 @@ export const Post = ({navigation}: Props) => {
 
   return (
     <>
+    
       <SafeAreaView style={{justifyContent: 'center', alignItems: 'center'}}>
         <Image
           className="h-full w-full absolute"
@@ -132,7 +140,7 @@ export const Post = ({navigation}: Props) => {
                     </Text>
                   </View>
 
-                  <View style={{width: '50%'}}>
+                  <View style={ {width: '50%',}}>
                     <TouchableOpacity
                       style={{
                         backgroundColor: '#147EFB',
