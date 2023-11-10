@@ -16,7 +16,7 @@ import { toastConfig } from './src/components/Toast';
       <NavigationContainer>
         <StackNavigator/>
       </NavigationContainer> 
-      <Toast config={toastConfig as unknown as any}/>
+      <Toast config={toastConfig as any}/>
     </ModalProvider> )
 }
 

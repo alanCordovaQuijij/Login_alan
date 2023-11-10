@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
 import React, { useState } from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, StatusBar } from 'react-native'
@@ -15,6 +16,7 @@ interface Immkv{
 export const mmkv = new MMKVLoader().initialize()
 
 
+
 export const Login = ({navigation}:Props) => {
     const[usuario, setUsuario] = useState('');
     const[password, setPassword] = useState('');
@@ -29,11 +31,13 @@ export const Login = ({navigation}:Props) => {
             navigation.navigate('Tabs')
 
             console.log('USUARIO:',usuario +' PASSWORD:',password)
+            setUsuario('')
+            setPassword('')
         }
 
-        
-
     };
+
+    
 
   return (
     <View className='bg-white h-full w-full'>
